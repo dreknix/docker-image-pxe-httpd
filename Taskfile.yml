@@ -25,7 +25,7 @@ tasks:
     cmds:
       - docker run --rm -d
                    -p 8080:8080
-                   -v $(pwd)/ipxe/:/ipxe/
+                   -v ipxe:/ipxe/
                    -v $(pwd)/config_local.json:/config_local.json
                    --name {{ .CONTAINER_NAME }}
                    {{ .IMAGE_NAME }}

@@ -9,6 +9,10 @@ RUN apk add --no-cache \
             py3-pip=22.3.1-r1 \
             py3-wheel=0.38.4-r0
 
+WORKDIR /ipxe-base
+
+COPY content/ .
+
 WORKDIR /
 
 COPY requirements.txt .
@@ -16,6 +20,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt; \
     rm -f requirements.txt
 
+COPY entrypoint.sh .
 COPY ipxe-httpd.py .
 COPY config.json .
 
@@ -23,4 +28,4 @@ EXPOSE 8080
 
 VOLUME /ipxe
 
-ENTRYPOINT [ "/ipxe-httpd.py" ]
+ENTRYPOINT [ "sh", "-c", "/entrypoint.sh" ]
