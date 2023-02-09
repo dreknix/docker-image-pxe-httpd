@@ -4,7 +4,7 @@
 version: '3'
 
 vars:
-  IMAGE_NAME: "ipxe-tftpd"
+  IMAGE_NAME: "ipxe-httpd"
   CONTAINER_NAME: "{{ .IMAGE_NAME }}"
 
 tasks:
