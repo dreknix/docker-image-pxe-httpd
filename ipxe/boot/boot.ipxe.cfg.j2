@@ -1,0 +1,52 @@
+#!ipxe
+
+set base-url http://{{ ipxe_hostname }}
+
+set boot-url ${base-url}/boot
+set iso-url  ${base-url}/iso
+
+set menu-url ${boot-url}/menu.ipxe
+
+# Figure out if client is 64-bit capable
+cpuid --ext 29 && set arch x64 || set arch x86
+cpuid --ext 29 && set archb 64 || set archb 32
+cpuid --ext 29 && set archl amd64 || set archl i386
+
+# Set graphics mode and configure colours
+console --x 1280 --y 800 --picture splash.png --top 2
+
+# 0 - black
+colour --basic 0 --rgb 0x1d1f21 0
+# 1 - red
+colour --basic 1 --rgb 0xcc6666 1
+# 2 - green
+colour --basic 2 --rgb 0xb5bd68 2
+# 3 - yellow
+colour --basic 3 --rgb 0xf0c674 3
+# 4 - transparent (do not change)
+colour --basic 15 4
+# 5 - magenta
+colour --basic 5 --rgb 0xb294bb 5
+# 6 - cyan
+colour --basic 6 --rgb 0x8abeb7 6
+# 7 - white
+colour --basic 7 --rgb 0xc5c8c6 7
+
+# 0 - default color (e.g. shell)
+cpair --foreground 2 0
+# 1 - normal text
+cpair --foreground 7 1
+# 2 - highlighted text (current menu line)
+cpair --foreground 3 --background 5 2
+# 3 - separators
+cpair --foreground 3 3
+# 4 - editable text
+cpair --foreground 1 --background 0 4
+# 6 - help URLs e.g. in settings
+cpair --foreground 5 6
+
+# TODO: where are these used?
+# 5 - error messages
+cpair --foreground 1 --background 2 5
+# 7 - PXE menu selection
+cpair --foreground 7 --background 2 7

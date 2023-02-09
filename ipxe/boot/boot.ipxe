@@ -1,0 +1,12 @@
+#!ipxe
+
+# Global variables used by all other iPXE scripts
+chain --autofree boot.ipxe.cfg ||
+isset ${menu-url} || goto failed
+
+# Boot <boot-url>/menu.ipxe script if all other options have been exhausted
+chain --replace --autofree ${menu-url} ||
+
+:failed
+echo Failed to load menu.ipxe
+shell

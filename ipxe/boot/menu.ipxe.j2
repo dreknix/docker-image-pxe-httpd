@@ -1,0 +1,86 @@
+#!ipxe
+
+# Variables are specified in boot.ipxe.cfg
+
+# Some menu defaults
+isset ${default-menu-timeout} || set default-menu-timeout 7000
+set menu-timeout ${default-menu-timeout}
+set submenu-timeout ${default-menu-timeout}
+
+isset ${default-menu-target} || set default-menu-target boot
+set menu-target ${default-menu-target}
+
+###################### MAIN MENU ####################################
+
+:start
+menu iPXE menu - ${product} (${archb}bit)
+item --gap --             INSTALLATION
+item --key u ubuntu       (X)Ubuntu Install & Live
+item --key f fedora       Fedora Install & Live
+item --key w winpe10      WinPE 10 64bit
+item --gap --
+item --gap --             MISCELLANEOUS
+item --key n netboot      netboot.xyz
+item --key m memtest      Memtest86+ v6.10
+item --key d freedos      FreeDOS v1.3
+item --gap --
+item --gap --             ADVANCED OPTIONS
+item --key c config       Configure settings
+item --key s shell        Drop to iPXE shell
+item --key b boot         Boot from local disk
+item --key r reboot       Reboot computer
+item
+item --key x exit         Exit iPXE and continue PXE boot
+choose --timeout ${menu-timeout} --default ${menu-target} selected || goto cancel
+set menu-timeout 0
+goto ${selected}
+
+###
+### CANCEL
+:cancel
+echo You cancelled the menu, dropping you to a shell
+goto shell
+
+###
+### CONFIG
+:config
+config
+goto start
+
+###
+### SHELL
+:shell
+echo Type 'exit' to get the back to the menu
+shell
+set menu-timeout 0
+set submenu-timeout 0
+goto start
+
+###
+### FAILED
+:failed
+echo Booting failed, dropping to shell
+sleep 5
+goto shell
+
+###
+### BOOT
+:boot
+show platform
+iseq ${platform} efi && goto boot-uefi || goto boot-bios
+:boot-bios
+sanboot --no-describe --drive 0x80 || echo sanboot failed
+goto failed
+:boot-uefi
+sanboot --no-describe --drive 0 || echo sanboot failed
+goto failed
+
+###
+### REBOOT
+:reboot
+reboot
+
+###
+### EXIT
+:exit
+exit

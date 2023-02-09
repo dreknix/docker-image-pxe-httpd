@@ -1,0 +1,44 @@
+---
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+
+  update:
+    desc: Install/Update Flask and Python packages
+    cmds:
+      - pip3 install --upgrade pip setuptools
+      - pip3 install --upgrade -r requirements.txt
+
+  build:
+    desc: Build Docker image
+    cmds:
+      - docker build . -t ipxe-httpd
+
+  start:
+    desc: Start Docker container
+    cmds:
+      - docker run --rm -d
+                   -p 8080:8080
+                   -v $(pwd)/ipxe/:/ipxe/
+                   -v $(pwd)/config_local.json:/config_local.json
+                   --name ipxe-httpd
+                   ipxe-httpd
+
+  stop:
+    desc: Stop Docker container
+    cmds:
+      - docker stop ipxe-httpd
+
+  exec:
+    desc: Execute shell inside container
+    cmds:
+      - docker exec -it ipxe-httpd sh
+
+  logs:
+    desc: Show container logs
+    cmds:
+      - docker exec -it ipxe-httpd sh
+
+...
