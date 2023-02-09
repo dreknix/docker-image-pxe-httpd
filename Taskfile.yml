@@ -3,6 +3,10 @@
 
 version: '3'
 
+vars:
+  IMAGE_NAME: "ipxe-tftpd"
+  CONTAINER_NAME: "{{ .IMAGE_NAME }}"
+
 tasks:
 
   update:
@@ -14,7 +18,7 @@ tasks:
   build:
     desc: Build Docker image
     cmds:
-      - docker build . -t ipxe-httpd
+      - docker build -t {{ .IMAGE_NAME }} -f Dockerfile .
 
   start:
     desc: Start Docker container
@@ -23,22 +27,22 @@ tasks:
                    -p 8080:8080
                    -v $(pwd)/ipxe/:/ipxe/
                    -v $(pwd)/config_local.json:/config_local.json
-                   --name ipxe-httpd
-                   ipxe-httpd
+                   --name {{ .CONTAINER_NAME }}
+                   {{ .IMAGE_NAME }}
 
   stop:
     desc: Stop Docker container
     cmds:
-      - docker stop ipxe-httpd
+      - docker stop {{ .CONTAINER_NAME }}
 
   exec:
     desc: Execute shell inside container
     cmds:
-      - docker exec -it ipxe-httpd sh
+      - docker exec -it {{ .CONTAINER_NAME }} sh
 
   logs:
     desc: Show container logs
     cmds:
-      - docker exec -it ipxe-httpd sh
+      - docker logs {{ .CONTAINER_NAME }}
 
 ...
