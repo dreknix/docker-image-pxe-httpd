@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import os
 
-app = Flask('ipxe-httpd', template_folder='.')
+app = Flask('pxe-httpd', template_folder='.')
 
 rootDir = os.environ.get('ROOT_DIR')
 
@@ -15,6 +15,11 @@ rootDir = os.environ.get('ROOT_DIR')
 @app.route('/')
 def root():
     return '<html><body><p>iPXE HTTP server</p></body></html>'
+
+
+@app.route('/iso/<path:path>')
+def iso(path):
+    return send_from_directory(f'{rootDir}/iso', path)
 
 
 @app.route('/boot/<path:path>')

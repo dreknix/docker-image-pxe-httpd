@@ -84,3 +84,36 @@ reboot
 ### EXIT
 :exit
 exit
+
+###################### MAIN MENU ITEMS ##############################
+
+###
+### netboot.xyz
+:netboot
+iseq ${platform} efi && goto netboot-uefi || goto netboot-bios
+:netboot-bios
+chain --autofree https://boot.netboot.xyz/ipxe/netboot.xyz.lkrn || goto failed
+goto start
+:netboot-uefi
+chain --autofree https://boot.netboot.xyz/ipxe/netboot.xyz.efi || goto failed
+goto start
+
+###
+### Memtest86+
+:memtest
+iseq ${platform} efi && goto memtest-uefi || goto memtest-bios
+:memtest-bios
+initrd ${base-url}/iso/mt86plus_6.10_64.iso || goto failed
+chain ${base-url}/iso/memdisk iso raw || goto failed
+goto start
+:memtest-uefi
+chain ${base-url}/iso/memtest64.efi || goto failed
+goto start
+
+
+
+###
+### FreeDOS
+:freedos
+sanboot ${base-url}/iso/freedos_live_1_3.iso || goto failed
+goto start
