@@ -1,9 +1,9 @@
 #!/bin/sh
 
-if [ ! -d /ipxe/boot/ ]
+if [ ! -d "${ROOT_DIR}/boot" ]
 then
-  mkdir /ipxe/boot
+  mkdir "${ROOT_DIR}/boot"
 fi
-cp -u /ipxe-base/boot/*  /ipxe/boot/
+cp -u /content/boot/*  "${ROOT_DIR}/boot"
 
-/ipxe-httpd.py
+/pxe-httpd.py

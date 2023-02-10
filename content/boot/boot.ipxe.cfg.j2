@@ -1,6 +1,6 @@
 #!ipxe
 
-set base-url http://{{ ipxe_hostname }}
+set base-url http://{{ pxe_hostname }}:{{ pxe_http_port }}
 
 set boot-url ${base-url}/boot
 set iso-url  ${base-url}/iso
