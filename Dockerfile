@@ -6,6 +6,13 @@ FROM alpine:3.17.1 AS builder
 ARG ROOT_DIR=/www
 ARG HTTP_PORT=8069
 
+LABEL org.opencontainers.image.authors='dreknix <dreknix@proton.me>' \
+      org.opencontainers.image.base.name='alpine:3.71.1' \
+      org.opencontainers.image.licenses='MIT' \
+      org.opencontainers.image.source='https://github.com/dreknix/docker-image-pxe-httpd.git' \
+      org.opencontainers.image.title='Docker image for HTTP server in PXE' \
+      org.opencontainers.image.url='https://github.com/dreknix/docker-image-pxe-httpd'
+
 # check: https://pkgs.alpinelinux.org/packages?branch=v3.17
 RUN apk add --no-cache \
             python3=3.10.10-r0 \
