@@ -1,5 +1,5 @@
 {
   "DEBUG": true,
 
-  "IPXE_HOSTNAME": "localhost"
+  "PXE_HOSTNAME": "localhost"
 }
