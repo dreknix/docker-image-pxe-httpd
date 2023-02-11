@@ -40,6 +40,16 @@ then
   rm mt86plus_6.10.binaries.zip
 fi
 
+# Install SystemRescue
+if [ ! -f "${ROOT_DIR}/iso/systemrescue" ]
+then
+  mkdir "${ROOT_DIR}/iso/systemrescue"
+  # use '-L' to follow redirects from SourceForge
+  curl --output systemrescue-9.06-amd64.iso -L https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/9.06/systemrescue-9.06-amd64.iso/download
+  7z x systemrescue-9.06-amd64.iso "-o${ROOT_DIR}/iso/systemrescue"
+  rm systemrescue-9.06-amd64.iso
+fi
+
 # Install FreeDOS
 if [ ! -f "${ROOT_DIR}/iso/freedos_live_1_3.iso" ]
 then

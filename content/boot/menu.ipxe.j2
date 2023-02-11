@@ -22,13 +22,14 @@ item --gap --
 item --gap --             MISCELLANEOUS
 item --key n netboot      netboot.xyz
 item --key m memtest      Memtest86+
+item --key s systemrescue SystemRescue
 item --key d freedos      FreeDOS (only in BIOS mode)
 item --gap --
 item --gap --             ADVANCED OPTIONS
 item --key c config       Configure settings
-item --key s shell        Drop to iPXE shell
-item --key b boot         Boot from local disk
-item --key r reboot       Reboot computer
+item shell                Drop to iPXE shell
+item boot                 Boot from local disk
+item reboot               Reboot computer
 item
 item --key x exit         Exit iPXE and continue PXE boot
 choose --timeout ${menu-timeout} --default ${menu-target} selected || goto cancel
@@ -110,7 +111,18 @@ goto start
 chain ${base-url}/iso/memtest64.efi || goto failed
 goto start
 
-
+###
+### SystemRescue
+:systemrescue
+# working only for BIOS system
+#imgfree
+#kernel ${base-url}/iso/memdisk iso raw || goto failed
+#initrd --name systemrescue-9.06-amd64.iso ${base-url}/iso/systemrescue-9.06-amd64.iso || goto failed
+#boot
+kernel ${base-url}/iso/systemrescue/sysresccd/boot/x86_64/vmlinuz initrd=sysresccd.img archisobasedir=sysresccd ip=dhcp archiso_http_srv=${base-url}/iso/systemrescue/ checksum || goto failed
+initrd ${base-url}/iso/systemrescue/sysresccd/boot/x86_64/sysresccd.img || goto failed
+boot || goto failed
+goto start
 
 ###
 ### FreeDOS
