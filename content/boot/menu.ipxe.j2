@@ -15,14 +15,14 @@ set menu-target ${default-menu-target}
 :start
 menu iPXE menu - ${product} (${archb}bit)
 item --gap --             INSTALLATION
-item --key u ubuntu       (X)Ubuntu Install & Live
-item --key f fedora       Fedora Install & Live
-item --key w winpe10      WinPE 10 64bit
+#TODO item --key u ubuntu       (X)Ubuntu Install & Live
+#TODO item --key f fedora       Fedora Install & Live
+#TODO item --key w winpe10      WinPE 10 64bit
 item --gap --
 item --gap --             MISCELLANEOUS
 item --key n netboot      netboot.xyz
-item --key m memtest      Memtest86+ v6.10
-item --key d freedos      FreeDOS v1.3
+item --key m memtest      Memtest86+
+item --key d freedos      FreeDOS (only in BIOS mode)
 item --gap --
 item --gap --             ADVANCED OPTIONS
 item --key c config       Configure settings
