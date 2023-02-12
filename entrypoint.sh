@@ -9,54 +9,112 @@ cp -u /content/boot/*  "${ROOT_DIR}/boot"
 ###
 ### Download ISO images
 ###
-if [ ! -d "${ROOT_DIR}/iso/" ]
+ISO_DIR="${ROOT_DIR}/iso"
+if [ ! -d "${ISO_DIR}/" ]
 then
-  mkdir "${ROOT_DIR}/iso/"
+  mkdir "${ISO_DIR}/"
 fi
 
+download() {
+  if [ $# -eq 0 ]
+  then
+    echo "function download: 'url' ['filename']"
+    return 1
+  fi
+  url="$1"
+  if [ $# -eq 1 ]
+  then
+    filename="$(basename "${url}")"
+  else
+    filename="$2"
+  fi
+  echo "Download: ${url}"
+  # using '-L' for redirects i.e. when using SourceForge
+  if ! curl -L --silent --output "${filename}" "${url}"
+  then
+    echo "error downloading: ${url}"
+    rm -f "${filename}"
+    return 1
+  fi
+  if [ ! -s "${filename}" ]
+  then
+    echo "downloaded empty file '${filename}'"
+    rm -f "${filename}"
+    return 1
+  fi
+  return 0
+}
+
 # Install memdisk
-if [ ! -f "${ROOT_DIR}/iso/memdisk" ]
+VERSION="5.10"
+TARGET="${ISO_DIR}/memdisk"
+echo "Checking: ${TARGET}"
+if [ ! -f "${TARGET}" ]
 then
-  curl --output syslinux-5.10.zip https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-5.10.zip
-  unzip syslinux-5.10.zip memdisk/memdisk
-  mv memdisk/memdisk "${ROOT_DIR}/iso/memdisk"
-  rmdir memdisk/
-  rm syslinux-5.10.zip
+  FILE="syslinux-${VERSION}.zip"
+  if download "https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/${FILE}"
+  then
+    unzip -q "${FILE}" memdisk/memdisk
+    mv memdisk/memdisk "${TARGET}"
+    rmdir memdisk/
+    rm "${FILE}"
+  fi
 fi
 
 # Install Memtest86+
-if [ ! -f "${ROOT_DIR}/iso/mt86plus_6.10_64.iso" ]
+VERSION="6.10"
+TARGET="${ISO_DIR}/mt86plus_${VERSION}_64.iso"
+echo "Checking: ${TARGET}"
+if [ ! -f "${TARGET}" ]
 then
-  curl --output mt86plus_6.10_64.iso.zip https://memtest.org/download/v6.10/mt86plus_6.10_64.iso.zip
-  unzip mt86plus_6.10_64.iso.zip mt86plus_6.10_64.iso
-  mv mt86plus_6.10_64.iso "${ROOT_DIR}/iso/mt86plus_6.10_64.iso"
-  rm mt86plus_6.10_64.iso.zip
+  FILE="mt86plus_${VERSION}_64.iso"
+  if download "https://memtest.org/download/v${VERSION}/${FILE}.zip"
+  then
+    unzip -q "${FILE}.zip" "${FILE}"
+    mv "${FILE}" "${TARGET}"
+    rm "${FILE}.zip"
+  fi
 fi
-if [ ! -f "${ROOT_DIR}/iso/memtest64.efi" ]
+TARGET="${ISO_DIR}/memtest64.efi"
+echo "Checking: ${TARGET}"
+if [ ! -f "${TARGET}" ]
 then
-  curl --output mt86plus_6.10.binaries.zip https://memtest.org/download/v6.10/mt86plus_6.10.binaries.zip
-  unzip mt86plus_6.10.binaries.zip memtest64.efi
-  mv memtest64.efi "${ROOT_DIR}/iso/memtest64.efi"
-  rm mt86plus_6.10.binaries.zip
+  FILE="mt86plus_${VERSION}.binaries.zip"
+  if download "https://memtest.org/download/v${VERSION}/${FILE}"
+  then
+    unzip -q "${FILE}" memtest64.efi
+    mv memtest64.efi "${TARGET}"
+    rm "${FILE}"
+  fi
 fi
 
 # Install SystemRescue
-if [ ! -f "${ROOT_DIR}/iso/systemrescue" ]
+VERSION="9.06"
+TARGET="${ISO_DIR}/systemrescue/"
+echo "Checking: ${TARGET}"
+if [ ! -d "${TARGET}" ]
 then
-  mkdir "${ROOT_DIR}/iso/systemrescue"
-  # use '-L' to follow redirects from SourceForge
-  curl --output systemrescue-9.06-amd64.iso -L https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/9.06/systemrescue-9.06-amd64.iso/download
-  7z x systemrescue-9.06-amd64.iso "-o${ROOT_DIR}/iso/systemrescue"
-  rm systemrescue-9.06-amd64.iso
+  FILE="systemrescue-${VERSION}-amd64.iso"
+  if download "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${VERSION}/${FILE}/download" "${FILE}"
+  then
+    7z -bso0 -bsp0 x "${FILE}" "-o${TARGET}"
+    rm "${FILE}"
+  fi
 fi
 
 # Install FreeDOS
-if [ ! -f "${ROOT_DIR}/iso/freedos_live_1_3.iso" ]
+VERSION="1.3"
+TARGET="${ISO_DIR}/freedos_${VERSION}_live.iso"
+echo "Checking: ${TARGET}"
+if [ ! -f "${TARGET}" ]
 then
-  curl --output FD13-LiveCD.zip https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/distributions/1.3/official/FD13-LiveCD.zip
-  unzip FD13-LiveCD.zip FD13LIVE.iso
-  mv FD13LIVE.iso "${ROOT_DIR}/iso/freedos_live_1_3.iso"
-  rm FD13-LiveCD.zip
+  FILE="FD13-LiveCD.zip"
+  if download "https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/distributions/${VERSION}/official/${FILE}"
+  then
+    unzip -q "${FILE}" FD13LIVE.iso
+    mv FD13LIVE.iso "${TARGET}"
+    rm "${FILE}"
+  fi
 fi
 
 ###
