@@ -16,7 +16,7 @@ Add menu entries when directory `ubuntu/<version>/<type>/` is found:
 ### 
 ### Ubuntu Live 
 :ubuntu-live 
-set ubuntu-base ${base-url}/iso/ubuntu 
+set ubuntu-base ${iso-url}/ubuntu 
 set ubuntu-type desktop 
 set ubuntu-version 22.04.1 
  

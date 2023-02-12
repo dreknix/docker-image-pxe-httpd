@@ -1,0 +1,30 @@
+#!ipxe
+
+isset ${default-submenu-target} || set default-submenu-target back
+set submenu-target ${default-submenu-target}
+
+###################### SUBMENUE UBUNTU VERSION ######################
+
+:start
+menu iPXE menu - Ubuntu
+item --gap --                       UBUNTU DESKTOP
+item ubuntu-desktop-{{ version }}   Ubuntu Desktop {{ version }}
+item xubuntu-desktop-{{ version }}  XUbuntu Desktop {{ version }}
+item ubuntu-desktop-{{ version }}   Ubuntu Desktop {{ version }} (minimal)
+item --gab --
+item --gap --                       UBUNTU SERVER
+item ubuntu-server-{{ version }}    Ubuntu Server {{ version }} (autoinstall)
+item --gab --
+item back                           Back to Ubuntu menue
+choose --timeout ${submenu-timeout} --default ${submenu-target} selected || goto cancel
+set submenu-timeout 0
+goto ${selected}
+
+
+###################### SUBMENUE UBUNTU VERSION ITEMS ################
+
+:ubuntu-desktop-{{ version }}
+goto start
+
+:ubuntu-server-{{ version }}
+goto start

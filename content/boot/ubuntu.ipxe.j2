@@ -1,0 +1,28 @@
+#!ipxe
+
+isset ${default-submenu-target} || set default-submenu-target back
+set submenu-target ${default-submenu-target}
+
+###################### SUBMENUE UBUNTU ##############################
+
+:start
+menu iPXE menu - Ubuntu
+item --gap --                            UBUNTU INSTALLATION
+{% for dict_item in ubuntu_list|sort(attribute='version') %}
+item ubuntu-{{ dict_item['version'] }}   Ubuntu {{ dict_item['version'] }}
+item ubuntu-{{ dict_item['version'] }}   Ubuntu {{ dict_item['version'] }}
+{% endfor %}
+item --gab --
+item back                 Back to main menue
+choose --timeout ${submenu-timeout} --default ${submenu-target} selected || goto cancel
+set submenu-timeout 0
+goto ${selected}
+
+
+###################### SUBMENUE UBUNTU ITEMS ########################
+
+{% for dict_item in ubuntu_list|sort(attribute='version') %}
+:ubuntu-{{ dict_item['version'] }}
+chain ubuntu-{{ dict_item['version'] }}.ipxe || goto failed
+goto start
+{% endfor %}

@@ -62,4 +62,9 @@ tasks:
     cmds:
       - docker logs '{{ .CONTAINER_NAME }}'
 
+  serve:
+    desc: Start local HTTP server for testing
+    cmds:
+      - ROOT_DIR=content HTTP_PORT=5000 ./pxe-httpd.py
+
 ...

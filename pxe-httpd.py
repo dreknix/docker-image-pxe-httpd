@@ -31,15 +31,41 @@ def path_boot(path):
         return path_boot_misc(path)
 
 
-# @app.route('/boot/ubuntu-<version:string>')
-# def path_boot_ubuntu_version(version):
-#     logging.debug('call path_boot_ubuntu_version')
-#     return send_from_directory(f'{rootDir}/boot', version)
+@app.route('/boot/ubuntu-<string:version>.ipxe')
+def path_boot_ubuntu_version(version):
+    templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
+    if not Path(templatename).is_file():
+        logging.error('menu template "ubuntu-version.ipxe.j2" is missing')
+        return ('', 500)
+    logging.debug(f'call path_boot_ubuntu_version: {version}')
+    ubuntuDir = Path(f"{rootDir}/iso/ubuntu/{version}")
+    if ubuntuDir.is_dir():
+        templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
+        return render_template(templatename, version=version)
+    else:
+        return ('', 204)
 
 
 def path_boot_ubuntu(path):
     logging.debug('call path_boot_ubuntu')
-    return send_from_directory(f'{rootDir}/boot', path)
+    filename = f'{rootDir}/boot/{path}'
+    file = Path(filename)
+    if file.is_file():
+        return send_from_directory(f'{rootDir}/boot', path)
+    else:
+        templatename = f'{rootDir}/boot/{path}.j2'
+        file = Path(templatename)
+        if file.is_file():
+            logging.debug(f'found ubuntu template {templatename}')
+            ubuntu = []
+            ubuntuDir = Path(f"{rootDir}/iso/ubuntu")
+            if ubuntuDir.is_dir():
+                dirlist = [item for item in os.listdir(ubuntuDir.as_posix()) if os.path.isdir(os.path.join(ubuntuDir.as_posix(), item))]
+                for version in dirlist:
+                    ubuntu.append({'version': version})
+            return render_template(templatename, ubuntu_list=ubuntu)
+        else:
+            return ('', 204)
 
 
 def path_boot_misc(path):
