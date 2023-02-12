@@ -19,11 +19,30 @@ def root():
 
 @app.route('/iso/<path:path>')
 def iso(path):
+    logging.debug(f'loading iso {path}')
     return send_from_directory(f'{rootDir}/iso', path)
 
 
 @app.route('/boot/<path:path>')
 def path_boot(path):
+    if path.startswith('ubuntu'):
+        return path_boot_ubuntu(path)
+    else:
+        return path_boot_misc(path)
+
+
+# @app.route('/boot/ubuntu-<version:string>')
+# def path_boot_ubuntu_version(version):
+#     logging.debug('call path_boot_ubuntu_version')
+#     return send_from_directory(f'{rootDir}/boot', version)
+
+
+def path_boot_ubuntu(path):
+    logging.debug('call path_boot_ubuntu')
+    return send_from_directory(f'{rootDir}/boot', path)
+
+
+def path_boot_misc(path):
     filename = f'{rootDir}/boot/{path}'
     file = Path(filename)
     if file.is_file():
