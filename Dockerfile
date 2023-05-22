@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
 # Get Alpine tag from: https://hub.docker.com/_/alpine
-FROM alpine:3.17.1 AS builder
+FROM alpine:3.17.3 AS builder
 
 ARG ROOT_DIR=/www
 ARG HTTP_PORT=8069
 
 LABEL org.opencontainers.image.authors='dreknix <dreknix@proton.me>' \
-      org.opencontainers.image.base.name='alpine:3.71.1' \
+      org.opencontainers.image.base.name='alpine:3.71.3' \
       org.opencontainers.image.licenses='MIT' \
       org.opencontainers.image.source='https://github.com/dreknix/docker-image-pxe-httpd.git' \
       org.opencontainers.image.title='Docker image for HTTP server in PXE' \
@@ -15,9 +15,9 @@ LABEL org.opencontainers.image.authors='dreknix <dreknix@proton.me>' \
 
 # check: https://pkgs.alpinelinux.org/packages?branch=v3.17
 RUN apk add --no-cache \
-            curl=7.87.0-r1 \
+            curl=8.1.0-r2 \
             p7zip=17.04-r3 \
-            python3=3.10.10-r0 \
+            python3=3.10.11-r0 \
             py3-pip=22.3.1-r1 \
             py3-wheel=0.38.4-r0
 
