@@ -10,14 +10,19 @@ menu iPXE menu - Ubuntu
 item --gap --                            UBUNTU INSTALLATION
 {% for dict_item in ubuntu_list|sort(attribute='version') %}
 item ubuntu-{{ dict_item['version'] }}   Ubuntu {{ dict_item['version'] }}
-item ubuntu-{{ dict_item['version'] }}   Ubuntu {{ dict_item['version'] }}
 {% endfor %}
-item --gab --
+item --gap --
 item back                 Back to main menue
 choose --timeout ${submenu-timeout} --default ${submenu-target} selected || goto cancel
 set submenu-timeout 0
 goto ${selected}
 
+:cancel
+echo You cancelled the menu, returning to previous menu
+
+:back
+chain menu.ipxe
+goto start
 
 ###################### SUBMENUE UBUNTU ITEMS ########################
 

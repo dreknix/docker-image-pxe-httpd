@@ -15,9 +15,9 @@ set menu-target ${default-menu-target}
 :start
 menu iPXE menu - ${product} (${archb}bit)
 item --gap --             INSTALLATION
-#TODO item --key u ubuntu       (X)Ubuntu Install & Live
-#TODO item --key f fedora       Fedora Install & Live
-#TODO item --key w winpe10      WinPE 10 64bit
+item --key u ubuntu       Ubuntu
+#TODO item --key f fedora       Fedora
+#TODO item --key w winpe10      WinPE 10
 item --gap --
 item --gap --             MISCELLANEOUS
 item --key n netboot      netboot.xyz
@@ -87,6 +87,12 @@ reboot
 exit
 
 ###################### MAIN MENU ITEMS ##############################
+
+###
+### Ubuntu
+:ubuntu
+chain ubuntu.ipxe || goto failed
+goto start
 
 ###
 ### netboot.xyz
