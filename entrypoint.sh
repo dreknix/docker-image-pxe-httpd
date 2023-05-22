@@ -4,7 +4,7 @@ if [ ! -d "${ROOT_DIR}/boot" ]
 then
   mkdir "${ROOT_DIR}/boot"
 fi
-cp -u /content/boot/*  "${ROOT_DIR}/boot"
+cp /content/boot/*  "${ROOT_DIR}/boot"
 
 ###
 ### Download ISO images
@@ -62,7 +62,7 @@ then
 fi
 
 # Install Memtest86+
-VERSION="6.10"
+VERSION="6.20"
 TARGET="${ISO_DIR}/mt86plus_${VERSION}_64.iso"
 echo "Checking: ${TARGET}"
 if [ ! -f "${TARGET}" ]
@@ -89,7 +89,7 @@ then
 fi
 
 # Install SystemRescue
-VERSION="9.06"
+VERSION="10.00"
 TARGET="${ISO_DIR}/systemrescue/"
 echo "Checking: ${TARGET}"
 if [ ! -d "${TARGET}" ]

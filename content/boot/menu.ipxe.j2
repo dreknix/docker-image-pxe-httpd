@@ -104,7 +104,7 @@ goto start
 :memtest
 iseq ${platform} efi && goto memtest-uefi || goto memtest-bios
 :memtest-bios
-initrd ${base-url}/iso/mt86plus_6.10_64.iso || goto failed
+initrd ${base-url}/iso/mt86plus_6.20_64.iso || goto failed
 chain ${base-url}/iso/memdisk iso raw || goto failed
 goto start
 :memtest-uefi
