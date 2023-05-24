@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.authors='dreknix <dreknix@proton.me>' \
 
 # check: https://pkgs.alpinelinux.org/packages?branch=v3.17
 RUN apk add --no-cache \
-            curl=8.1.0-r2 \
+            curl=8.1.1-r0 \
             p7zip=17.04-r3 \
             python3=3.10.11-r0 \
             py3-pip=22.3.1-r1 \
