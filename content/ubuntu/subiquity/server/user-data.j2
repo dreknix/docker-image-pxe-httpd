@@ -1,0 +1,87 @@
+#cloud-config
+autoinstall:
+  # version is an Autoinstall required field.
+  version: 1
+{%- if subiquity_keyboard_layout is defined %}
+  # keyboard in an optional field, defaults to 'us'
+  keyboard:
+    layout: '{{ subiquity_keyboard_layout }}'
+  {%- if subiquity_keyboard_variant is defined %}
+    variant: '{{ subiquity_keyboard_variant }}'
+  {%- endif %}
+{%- endif %}
+{%- if subiquity_locale is defined %}
+  # locale is an optional field.
+  locale: '{{ subiquity_locale }}'
+{%- endif %}
+{%- if subiquity_timezone is defined %}
+  # timezone is an optional field.
+  timezone: '{{ subiquity_timezone }}'
+{%- endif %}
+  # Subiquity will, by default, configure a partition layout using LVM.
+  # The 'direct' layout method shown here will produce a non-LVM result.
+  storage:
+    layout:
+      name: 'direct'
+{%- if subiquity_apt_proxy is defined %}
+  # If a proxy is used apt sources must be changed.
+  apt:
+    preserve_sources_list: false
+    primary:
+    - arches: [amd64]
+      uri: '{{ subiquity_apt_proxy }}'
+{%- endif %}
+{%- if subiquity_packages is defined %}
+  # Any desired additional packages may also be listed here.
+  packages:
+  {%- for package in subiquity_packages %}
+    - '{{ package }}'
+  {%- endfor %}
+{%- endif %}
+  # updates: security / all
+  updates: all
+  # shutdown: reboot / poweroff
+  shutdown: reboot
+  # configure ssh server
+  ssh:
+    install-server: true
+    allow-pw: {%- if subiquity_ssh_keys is defined %}false{% else %}true{% endif %}
+{%- if subiquity_ssh_keys is defined %}
+    authorized-keys:
+  {%- for ssh_key in subiquity_ssh_keys %}
+      - '{{ ssh_key }}'
+  {%- endfor %}
+{%- endif %}
+{%- if subiquity_postinstall_url is defined %}
+  # A postinstall script may optionally be used for further install
+  # customization. Deploy the script on the webserver.
+  late-commands:
+    - wget -O /target/postinstall.sh {{ subiquity_postinstall_url }}
+    - curtin in-target -- bash /postinstall.sh
+    - rm -f /target/postinstall.sh
+{%- endif %}
+  # Additional cloud-init configuration affecting the target
+  # system can be supplied underneath a user-data section inside of
+  # autoinstall.
+  user-data:
+    # must have a hostname from DHCP (pool ip is not working)
+    # hostname: set in kernel-cmdline (in ipxe)
+    # fqdn: set in kernel-cmdline (in ipxe)
+    manage_etc_hosts: true
+{%- if subiquity_default_user is defined and subiquity_default_user == "root" %}
+    disable_root: false
+{%- else %}
+    disable_root: true
+{%- endif %}
+    chpasswd:
+      expire: false
+    system_info:
+      default_user:
+{%- if subiquity_default_user is defined %}
+        name: '{{ subiquity_default_user }}'
+{%- endif %}
+        lock_passwd: false
+{%- if subiquity_default_password is defined %}
+        hashed_passwd: '{{ subiquity_default_password }}'
+{%- endif %}
+

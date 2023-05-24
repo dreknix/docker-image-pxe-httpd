@@ -38,9 +38,19 @@ tasks:
       - docker push '{{ .DOCKER_HUB_NAMESPACE }}/{{ .IMAGE_NAME }}:latest'
 
   start:
-    desc: Start Docker container
+    desc: Start Docker container in background
     cmds:
-      - docker run --rm -d
+      - docker run --rm --detach
+                   -p '{{ .HTTP_PORT }}:{{ .HTTP_PORT }}'
+                   -v 'pxe-www:{{ .ROOT_DIR }}'
+                   -v $(pwd)/config_local.json:/config_local.json
+                   --name '{{ .CONTAINER_NAME }}'
+                   '{{ .IMAGE_NAME }}'
+
+  run:
+    desc: Run Docker container in foreground
+    cmds:
+      - docker run --rm --interactive --tty
                    -p '{{ .HTTP_PORT }}:{{ .HTTP_PORT }}'
                    -v 'pxe-www:{{ .ROOT_DIR }}'
                    -v $(pwd)/config_local.json:/config_local.json

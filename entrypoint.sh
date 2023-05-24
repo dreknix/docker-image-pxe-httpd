@@ -1,14 +1,14 @@
 #!/bin/sh
 
+### Copy all iPXE menu files
 if [ ! -d "${ROOT_DIR}/boot" ]
 then
   mkdir "${ROOT_DIR}/boot"
 fi
 cp /content/boot/*  "${ROOT_DIR}/boot"
 
-###
+
 ### Download ISO images
-###
 ISO_DIR="${ROOT_DIR}/iso"
 if [ ! -d "${ISO_DIR}/" ]
 then
@@ -117,7 +117,14 @@ then
   fi
 fi
 
-###
+
+### Copy Ubuntu Subiquity files
+if [ ! -d "${ROOT_DIR}/ubuntu" ]
+then
+  mkdir "${ROOT_DIR}/ubuntu"
+fi
+cp -r /content/ubuntu/*  "${ROOT_DIR}/ubuntu"
+
+
 ### Start HTTP server
-###
 /pxe-httpd.py

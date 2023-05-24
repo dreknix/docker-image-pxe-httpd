@@ -3,29 +3,82 @@
 isset ${default-submenu-target} || set default-submenu-target back
 set submenu-target ${default-submenu-target}
 
+set ubuntu-version       {{ version }}
+
+set ubuntu-url           ${base-url}/ubuntu
+set subiquity-base-url   ${ubuntu-url}/subiquity
+
+# Select the Ubuntu netboot path
+set netboot-base         ${iso-url}/ubuntu/${ubuntu-version}
+set ubuntu-desktop-iso   ${netboot-base}/desktop/ubuntu-${ubuntu-version}-desktop-amd64.iso
+set ubuntu-server-iso    ${netboot-base}/server/ubuntu-${ubuntu-version}-live-server-amd64.iso
+
+set ubuntu-iso           ${ubuntu-server-iso}
+
+set ramdisk-size         1500000
+
+set keyboard             keyboard-configuration/layoutcode=de keyboard-configuration/variantcode=nodeadkeys
+
+# base-type: server or desktop
+set base-type            server
+
+# start-type: default or autoinstall
+set start-type           autoinstall
+
 ###################### SUBMENUE UBUNTU VERSION ######################
 
 :start
 menu iPXE menu - Ubuntu
-item --gap --              UBUNTU DESKTOP
-item ubuntu-desktop        Ubuntu Desktop {{ version }}
-item xubuntu-desktop       XUbuntu Desktop {{ version }}
-item ubuntu-desktop-min    Ubuntu Desktop {{ version }} (minimal)
-item ubuntu-desktop-debug  Ubuntu Desktop {{ version }} (debug)
+{%- if desktop is defined and desktop %}
+item --gap --              UBUNTU DESKTOP ${ubuntu-version}
+item ubuntu-desktop        Ubuntu Desktop
+item xubuntu-desktop       XUbuntu Desktop
+item ubuntu-desktop-min    Ubuntu Desktop (minimal)
+item ubuntu-desktop-debug  Ubuntu Desktop (debug)
 item --gap --
-item --gap --              UBUNTU SERVER
-item ubuntu-server         Ubuntu Server {{ version }} (autoinstall)
+{%- endif %}
+{%- if server is defined and server %}
+item --gap --              UBUNTU SERVER ${ubuntu-version}
+item autoinstall-server    Ubuntu Server (autoinstall)
 item --gap --
+{%- endif %}
 item back                  Back to Ubuntu menue
 choose --timeout ${submenu-timeout} --default ${submenu-target} selected || goto cancel
 set submenu-timeout 0
 goto ${selected}
-
 
 ###################### SUBMENUE UBUNTU VERSION ITEMS ################
 
 :ubuntu-desktop
 goto start
 
-:ubuntu-server
+:autoinstall-server
+set subiquity-url  ${subiquity-base-url}/server
+goto boot-ubuntu
+
+### BOOT UBUNTU
+:boot-ubuntu
+
+# set ramdisk and use ramdisk-size
+#set ramdisk        root=/dev/ram0 ramdisk_size=${ramdisk-size}
+
+# choose iso-image and set netboot based on base-type (desktop or server)
+iseq ${base-type} desktop && set ubuntu-iso ${ubuntu-desktop-iso} || set ubuntu-iso ${ubuntu-server-iso}
+#set netboot        ip=dhcp url=${ubuntu-iso} cloud-config-url=/dev/null
+set netboot        ip=dhcp nfsroot=134.28.77.71:/iso/ubuntu/22.04.2/server/iso,port=2049 nfsrootdebug netboot=nfs ro cloud-config-url=/dev/null
+
+# if start-type is autoinstall set autoinstall
+iseq ${start-type} autoinstall && set autoinstall autoinstall ||
+
+# if hostname is not set, set it to ubuntu
+isset ${hostname} || set hostname ubuntu
+
+# set cloud-config
+set cloud-config   ds=nocloud-net;s=${subiquity-url}/ cc:autoinstall: { user-data: { hostname: ${hostname} } } end_cc cc:autoinstall: { user-data: { fqdn: ${hostname}.${domain} } } end_cc
+
+kernel ${netboot-base}/${base-type}/vmlinuz || echo Failed loading vmlinuz
+initrd ${netboot-base}/${base-type}/initrd  || echo Failed loading initrd
+imgargs vmlinuz initrd=initrd ${ramdisk} ${netboot} ${autoinstall} ${cloud-config} ${keyboard}
+
+boot || goto failed
 goto start

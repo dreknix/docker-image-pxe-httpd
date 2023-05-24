@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from flask import Flask, send_from_directory, render_template
+from flask import Flask, send_from_directory, render_template, request
 # from flask_debugtoolbar import DebugToolbarExtension
 import json
 import logging
 from pathlib import Path
 import os
+import copy
 
 app = Flask('pxe-httpd', template_folder='.')
 
@@ -17,33 +18,12 @@ def root():
     return '<html><body><p>iPXE HTTP server</p></body></html>'
 
 
-@app.route('/iso/<path:path>')
-def iso(path):
-    logging.debug(f'loading iso {path}')
-    return send_from_directory(f'{rootDir}/iso', path)
-
-
 @app.route('/boot/<path:path>')
 def path_boot(path):
     if path.startswith('ubuntu'):
         return path_boot_ubuntu(path)
     else:
         return path_boot_misc(path)
-
-
-@app.route('/boot/ubuntu-<string:version>.ipxe')
-def path_boot_ubuntu_version(version):
-    templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
-    if not Path(templatename).is_file():
-        logging.error('menu template "ubuntu-version.ipxe.j2" is missing')
-        return ('', 500)
-    logging.debug(f'call path_boot_ubuntu_version: {version}')
-    ubuntuDir = Path(f"{rootDir}/iso/ubuntu/{version}")
-    if ubuntuDir.is_dir():
-        templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
-        return render_template(templatename, version=version)
-    else:
-        return ('', 204)
 
 
 def path_boot_ubuntu(path):
@@ -82,6 +62,63 @@ def path_boot_misc(path):
             return render_template(templatename, **config)
         else:
             return ('', 204)
+
+
+@app.route('/boot/ubuntu-<string:version>.ipxe')
+def path_boot_ubuntu_version(version):
+    templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
+    if not Path(templatename).is_file():
+        logging.error('menu template "ubuntu-version.ipxe.j2" is missing')
+        return ('', 500)
+    logging.debug(f'call path_boot_ubuntu_version: {version}')
+    ubuntuDir = Path(f"{rootDir}/iso/ubuntu/{version}")
+    if ubuntuDir.is_dir():
+        templatename = f'{rootDir}/boot/ubuntu-version.ipxe.j2'
+        ubuntuDesktopDir = Path(f"{rootDir}/iso/ubuntu/{version}/desktop")
+        ubuntuServerDir = Path(f"{rootDir}/iso/ubuntu/{version}/server")
+        return render_template(templatename,
+                               version=version,
+                               desktop=ubuntuDesktopDir.is_dir(),
+                               server=ubuntuServerDir.is_dir())
+    else:
+        return ('', 204)
+
+
+@app.route('/iso/<path:path>')
+def iso(path):
+    logging.debug(f'loading iso {path}')
+    return send_from_directory(f'{rootDir}/iso', path)
+
+
+@app.route('/ubuntu/subiquity/<string:type>/<string:file>')
+def subiquity(type, file):
+    logging.debug(f'loading subiquity({type}): {file}')
+    config = get_subiquity_config(request.remote_addr)
+    filename = f'{rootDir}/ubuntu/subiquity/{type}/{file}'
+    f = Path(filename)
+    if f.is_file():
+        return send_from_directory(f'{rootDir}/ubuntu/subiquity/{type}/', file)
+    else:
+        templatename = f'{rootDir}/ubuntu/subiquity/{type}/{file}.j2'
+        f = Path(templatename)
+        if f.is_file():
+            logging.debug(f'found template {templatename}')
+            logging.debug(f'using config {config}')
+            return render_template(templatename, **config)
+        else:
+            return ('', 204)
+
+
+def get_subiquity_config(addr):
+    logging.debug(f'request from {addr}')
+    config = copy.deepcopy(app.config)
+    configname = f'{rootDir}/ubuntu/subiquity/configs/{addr}.json'
+    configfile = Path(configname)
+    logging.debug(f'searching client specific config {configname}')
+    if configfile.is_file():
+        logging.debug(f'found client specific config {configname}')
+        config.from_file(configname, load=json.load)
+    return config.get_namespace('SUBIQUITY', trim_namespace=False)
 
 
 def main():
