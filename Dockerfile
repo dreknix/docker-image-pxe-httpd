@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Get Alpine tag from: https://hub.docker.com/_/alpine
-FROM alpine:3.18.0 AS builder
+FROM alpine:3.18.2 AS builder
 
 ARG ROOT_DIR=/www
 ARG HTTP_PORT=8069
