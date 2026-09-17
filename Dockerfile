@@ -17,7 +17,7 @@ LABEL org.opencontainers.image.authors='dreknix <dreknix@proton.me>' \
 RUN apk add --no-cache \
             curl=8.1.1-r0 \
             p7zip=17.04-r3 \
-            python3=3.10.11-r0 \
+            python3=3.14.7-r1 \
             py3-pip=22.3.1-r1 \
             py3-wheel=0.38.4-r0
 
