@@ -18,7 +18,7 @@ RUN apk add --no-cache \
             curl=8.1.1-r0 \
             p7zip=17.04-r3 \
             python3=3.10.11-r0 \
-            py3-pip=22.3.1-r1 \
+            py3-pip=26.1.2-r0 \
             py3-wheel=0.38.4-r0
 
 WORKDIR /content
